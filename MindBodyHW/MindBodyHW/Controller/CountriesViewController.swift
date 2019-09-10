@@ -15,9 +15,16 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
   var activityIndicator: UIActivityIndicatorView = {
     let aiv = UIActivityIndicatorView(style: .whiteLarge)
     aiv.color = .darkGray
-    aiv.startAnimating()
     aiv.hidesWhenStopped = true
+    aiv.startAnimating()
+    aiv.backgroundColor = .white
     return aiv
+  }()
+  
+  lazy var refreshController: UIRefreshControl = {
+    let rc = UIRefreshControl()
+    rc.addTarget(self, action: #selector(fetchData), for: .valueChanged)
+    return rc
   }()
   
   lazy var collectionView: UICollectionView = {
@@ -43,13 +50,21 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
     fetchData()
   }
   
-  fileprivate func fetchData() {
+  @objc fileprivate func fetchData() {
+    
+    
     Service.shared.fetchCountries { (countries, err) in
       self.countries = countries ?? []
+      
+      
+      // Demonstarte that the laoding spinner is functional
+      sleep(2)
       
       DispatchQueue.main.async {
         self.collectionView.reloadData()
         self.activityIndicator.stopAnimating()
+        self.refreshController.endRefreshing()
+        
       }
     }
 
@@ -60,6 +75,7 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
     collectionView.fillSuperview()
     collectionView.backgroundColor = .white
     collectionView.register(CountryCell.self, forCellWithReuseIdentifier: cellId)
+    collectionView.refreshControl = refreshController
   }
   
   
