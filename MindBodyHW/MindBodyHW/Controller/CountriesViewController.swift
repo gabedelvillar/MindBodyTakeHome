@@ -10,6 +10,15 @@ import UIKit
 
 class CountriesViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
   fileprivate let cellId = "cellID"
+  fileprivate var countries = [Country]()
+  
+  var activityIndicator: UIActivityIndicatorView = {
+    let aiv = UIActivityIndicatorView(style: .whiteLarge)
+    aiv.color = .darkGray
+    aiv.startAnimating()
+    aiv.hidesWhenStopped = true
+    return aiv
+  }()
   
   lazy var collectionView: UICollectionView = {
     let layout = UICollectionViewFlowLayout()
@@ -26,8 +35,24 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
       navigationController.navigationBar.prefersLargeTitles = true
       navigationController.navigationBar.topItem?.title = "Countries"
     }
-    
     setupCollectionView()
+    
+    view.addSubview(activityIndicator)
+    activityIndicator.fillSuperview()
+    
+    fetchData()
+  }
+  
+  fileprivate func fetchData() {
+    Service.shared.fetchCountries { (countries, err) in
+      self.countries = countries ?? []
+      
+      DispatchQueue.main.async {
+        self.collectionView.reloadData()
+        self.activityIndicator.stopAnimating()
+      }
+    }
+
   }
   
   fileprivate func setupCollectionView() {
@@ -41,13 +66,14 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
   
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! CountryCell
-    
+    let country = countries[indexPath.item]
+    cell.nameLbl.text = country.Name
     return cell
   }
   
   
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    return 5
+    return countries.count
   }
   
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -56,5 +82,6 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
 
 
 }
+
 
 
