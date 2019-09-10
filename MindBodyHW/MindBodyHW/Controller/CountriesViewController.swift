@@ -95,6 +95,15 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
     return .init(width: view.frame.width, height: 100)
   }
+  
+  
+  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    let country = countries[indexPath.item]
+    
+    let countryDetailsViewController = CountryDetailsViewController()
+    navigationController?.navigationBar.topItem?.title = country.Name
+    navigationController?.pushViewController(countryDetailsViewController, animated: true)
+  }
 
 
 }

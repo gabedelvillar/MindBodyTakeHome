@@ -16,6 +16,7 @@
 		0A9015E42326F23700217CCA /* CountryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9015E32326F23700217CCA /* CountryCell.swift */; };
 		0A9015E72326F7A000217CCA /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9015E62326F7A000217CCA /* Service.swift */; };
 		0A9015E923281E2600217CCA /* Country.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9015E823281E2600217CCA /* Country.swift */; };
+		0A9015EB2328399E00217CCA /* CountryDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9015EA2328399E00217CCA /* CountryDetailsViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		0A9015E32326F23700217CCA /* CountryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryCell.swift; sourceTree = "<group>"; };
 		0A9015E62326F7A000217CCA /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
 		0A9015E823281E2600217CCA /* Country.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Country.swift; sourceTree = "<group>"; };
+		0A9015EA2328399E00217CCA /* CountryDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryDetailsViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				0A6CBD402326DB1300E8DC51 /* CountriesViewController.swift */,
+				0A9015EA2328399E00217CCA /* CountryDetailsViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -188,6 +191,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A9015E42326F23700217CCA /* CountryCell.swift in Sources */,
+				0A9015EB2328399E00217CCA /* CountryDetailsViewController.swift in Sources */,
 				0A6CBD412326DB1300E8DC51 /* CountriesViewController.swift in Sources */,
 				0A9015E72326F7A000217CCA /* Service.swift in Sources */,
 				0A9015E22326E67900217CCA /* UIView+AutoLayout.swift in Sources */,
