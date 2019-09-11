@@ -16,14 +16,13 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
     let aiv = UIActivityIndicatorView(style: .whiteLarge)
     aiv.color = .darkGray
     aiv.hidesWhenStopped = true
-    aiv.startAnimating()
     aiv.backgroundColor = .white
     return aiv
   }()
   
   lazy var refreshController: UIRefreshControl = {
     let rc = UIRefreshControl()
-    rc.addTarget(self, action: #selector(fetchData), for: .valueChanged)
+    rc.addTarget(self, action: #selector(startRefreshing), for: .valueChanged)
     return rc
   }()
   
@@ -34,10 +33,32 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
     cv.dataSource = self
     return cv
   }()
+  
+  let dataFetchErrorMsg = UILabel(text: "Oops. Could not fetch data from API", font: .systemFont(ofSize: 18, weight: .bold), numberOfLines: 2)
+  
+  let retryBtn: UIButton = {
+    let btn = UIButton(type: .system)
+    btn.setTitle("RETRY", for: .normal)
+    btn.addTarget(self, action: #selector(retryBtnPressed), for: .touchUpInside)
+    return btn
+  }()
+  
+  lazy var errorVerticalStackView: VerticalStackView = {
+    let stackView = VerticalStackView(arrangedSubviews: [
+      dataFetchErrorMsg,
+      retryBtn
+      ], spacing: 12)
+     stackView.alignment = .center
+    stackView.isHidden = true
+    return stackView
+    
+  }()
 
   override func viewDidLoad() {
     super.viewDidLoad()
    
+    view.backgroundColor = .white
+    
     if let navigationController = navigationController {
       navigationController.navigationBar.prefersLargeTitles = true
       navigationController.navigationBar.topItem?.title = "Countries"
@@ -47,25 +68,59 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
     view.addSubview(activityIndicator)
     activityIndicator.fillSuperview()
     
+   
+    
+   
+    view.addSubview(errorVerticalStackView)
+    errorVerticalStackView.centerInSuperview()
+    
+    
+    
+    fetchData()
+  }
+  
+  @objc fileprivate func startRefreshing() {
+    refreshController.endRefreshing()
+    fetchData()
+  }
+  
+@objc fileprivate func retryBtnPressed() {
+    errorVerticalStackView.isHidden = true
     fetchData()
   }
   
   
-  
-  @objc fileprivate func fetchData() {
+  fileprivate func fetchData() {
     
-    
+    activityIndicator.startAnimating()
     Service.shared.fetchCountries { (countries, err) in
       self.countries = countries ?? []
-      
       
       // Demonstarte that the laoding spinner is functional
       sleep(1)
       
+      if let err = err {
+        print("there was an error fetchig data from the API: ", err)
+        
+        DispatchQueue.main.async {
+          
+          self.collectionView.isHidden = true
+          self.errorVerticalStackView.isHidden = false
+          
+          
+          self.activityIndicator.stopAnimating()
+        
+        }
+        
+        return
+      }
+      
+      
+      
       DispatchQueue.main.async {
+        self.collectionView.isHidden = false
         self.collectionView.reloadData()
         self.activityIndicator.stopAnimating()
-        self.refreshController.endRefreshing()
         
       }
     }
