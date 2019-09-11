@@ -57,7 +57,6 @@ class Service{
       
       do{
         let provinces = try JSONDecoder().decode([Province].self, from: data)
-        provinces.forEach({print($0.Name)})
         completion(provinces, nil)
       } catch let jsonErr {
         print("Failed to decode json: ", jsonErr)

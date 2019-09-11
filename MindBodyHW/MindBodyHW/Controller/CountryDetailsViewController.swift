@@ -54,6 +54,7 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
   let noProvincesMsg = UILabel(text: "No Provinces for this Country to Display", font: .systemFont(ofSize: 18, weight: .bold), numberOfLines: 2)
   
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    
     return provinces.count
   }
   
@@ -88,6 +89,10 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
     
     view.addSubview(errorVerticalStackView)
     errorVerticalStackView.centerInSuperview()
+    
+    view.addSubview(noProvincesMsg)
+    noProvincesMsg.centerInSuperview()
+    noProvincesMsg.isHidden = true
     
     fetchData()
     
@@ -135,9 +140,23 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
       
       
       DispatchQueue.main.async {
-        self.collectionView.isHidden = false
-        self.collectionView.reloadData()
-        self.activityIndicator.stopAnimating()
+        
+         self.activityIndicator.stopAnimating()
+        
+        if self.provinces.count == 0 {
+          
+          
+          self.noProvincesMsg.isHidden = false
+        } else{
+        
+          self.noProvincesMsg.isHidden = true
+          self.collectionView.isHidden = false
+          self.collectionView.reloadData()
+          
+        }
+        
+       
+        
       }
     }
     
