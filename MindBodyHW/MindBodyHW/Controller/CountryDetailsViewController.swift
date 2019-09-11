@@ -32,6 +32,8 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
     return aiv
   }()
   
+  let noProvincesMsg = UILabel(text: "No Provinces for this Country to Display", font: .systemFont(ofSize: 18, weight: .bold), numberOfLines: 2)
+  
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
     return provinces.count
   }
@@ -67,6 +69,14 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
     
     fetchData()
     
+  }
+  
+  override func viewDidAppear(_ animated: Bool) {
+    if provinces.count == 0 {
+      activityIndicator.stopAnimating()
+      view.addSubview(noProvincesMsg)
+      noProvincesMsg.centerInSuperview()
+    }
   }
   
   fileprivate func fetchData() {
