@@ -100,7 +100,7 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
     let country = countries[indexPath.item]
     
-    let countryDetailsViewController = CountryDetailsViewController()
+    let countryDetailsViewController = CountryDetailsViewController(countryId: country.ID)
     navigationController?.navigationBar.topItem?.title = country.Name
     navigationController?.pushViewController(countryDetailsViewController, animated: true)
   }

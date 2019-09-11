@@ -35,6 +35,32 @@ class Service{
         completion(nil, jsonErr)
       }
       
-    }.resume()
+    }.resume() // this will fire request
+  }
+  
+  func fetchCountryDetails(countryId: Int, completion: @escaping ([Province]?, Error?) -> ()){
+    let jsonUrlString = "https://connect.mindbodyonline.com/rest/worldregions/country/\(countryId)/province"
+    
+    guard let url = URL(string: jsonUrlString) else {return}
+    
+    URLSession.shared.dataTask(with: url) { (data, response, err) in
+      // check for errors when fetchind data
+      if let err = err {
+        print("Error fetching data: ", err)
+        return
+      }
+      
+      // else: success, now decode the data
+      guard let data = data else {return}
+      
+      do{
+        let provinces = try JSONDecoder().decode([Province].self, from: data)
+        provinces.forEach({print($0.Name)})
+        completion(provinces, nil)
+      } catch let jsonErr {
+        print("Failed to decode json: ", jsonErr)
+        completion(nil, jsonErr)
+      }
+    }.resume() // this will fire request
   }
 }
