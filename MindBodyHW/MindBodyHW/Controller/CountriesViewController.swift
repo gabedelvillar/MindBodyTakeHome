@@ -58,7 +58,7 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
       
       
       // Demonstarte that the laoding spinner is functional
-      sleep(2)
+      sleep(1)
       
       DispatchQueue.main.async {
         self.collectionView.reloadData()

@@ -10,6 +10,8 @@ import UIKit
 
 class ProvinceCell: UICollectionViewCell {
   
+  
+  
   let nameLbl = UILabel(text: "California", font: .systemFont(ofSize: 18))
   
   override init(frame: CGRect) {

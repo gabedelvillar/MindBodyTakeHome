@@ -23,6 +23,15 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
     fatalError("init(coder:) has not been implemented")
   }
   
+  var activityIndicator: UIActivityIndicatorView = {
+    let aiv = UIActivityIndicatorView(style: .whiteLarge)
+    aiv.color = .darkGray
+    aiv.hidesWhenStopped = true
+    aiv.startAnimating()
+    aiv.backgroundColor = .white
+    return aiv
+  }()
+  
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
     return provinces.count
   }
@@ -52,6 +61,10 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
     view.backgroundColor = .red
     
     setupCollectionView()
+    
+    view.addSubview(activityIndicator)
+    activityIndicator.fillSuperview()
+    
     fetchData()
     
   }
@@ -61,8 +74,13 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
     Service.shared.fetchCountryDetails(countryId: countryId) { (provinces, err) in
       self.provinces = provinces ?? []
       
+      
+      // Used to demonstarte that the laoding spinner is present and functional
+      sleep(1)
+      
       DispatchQueue.main.async {
         self.collectionView.reloadData()
+        self.activityIndicator.stopAnimating()
       }
     }
     
