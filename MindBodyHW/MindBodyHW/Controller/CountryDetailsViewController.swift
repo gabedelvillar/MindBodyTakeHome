@@ -27,9 +27,28 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
     let aiv = UIActivityIndicatorView(style: .whiteLarge)
     aiv.color = .darkGray
     aiv.hidesWhenStopped = true
-    aiv.startAnimating()
     aiv.backgroundColor = .white
     return aiv
+  }()
+  
+  let dataFetchErrorMsg = UILabel(text: "Oops. Could not fetch data from API", font: .systemFont(ofSize: 18, weight: .bold), numberOfLines: 2)
+  
+  let retryBtn: UIButton = {
+    let btn = UIButton(type: .system)
+    btn.setTitle("RETRY", for: .normal)
+    btn.addTarget(self, action: #selector(retryBtnPressed), for: .touchUpInside)
+    return btn
+  }()
+  
+  lazy var errorVerticalStackView: VerticalStackView = {
+    let stackView = VerticalStackView(arrangedSubviews: [
+      dataFetchErrorMsg,
+      retryBtn
+      ], spacing: 12)
+    stackView.alignment = .center
+    stackView.isHidden = true
+    return stackView
+    
   }()
   
   let noProvincesMsg = UILabel(text: "No Provinces for this Country to Display", font: .systemFont(ofSize: 18, weight: .bold), numberOfLines: 2)
@@ -60,35 +79,63 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
   }()
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .red
+    view.backgroundColor = .white
     
     setupCollectionView()
     
     view.addSubview(activityIndicator)
     activityIndicator.fillSuperview()
     
+    view.addSubview(errorVerticalStackView)
+    errorVerticalStackView.centerInSuperview()
+    
     fetchData()
     
   }
   
-  override func viewDidAppear(_ animated: Bool) {
-    if provinces.count == 0 {
-      activityIndicator.stopAnimating()
-      view.addSubview(noProvincesMsg)
-      noProvincesMsg.centerInSuperview()
-    }
+  @objc fileprivate func retryBtnPressed() {
+    errorVerticalStackView.isHidden = true
+    fetchData()
   }
   
+//  override func viewDidAppear(_ animated: Bool) {
+//    if provinces.count == 0 {
+//      activityIndicator.stopAnimating()
+//      view.addSubview(noProvincesMsg)
+//      noProvincesMsg.centerInSuperview()
+//    }
+//  }
+  
   fileprivate func fetchData() {
+    
+    activityIndicator.startAnimating()
     
     Service.shared.fetchCountryDetails(countryId: countryId) { (provinces, err) in
       self.provinces = provinces ?? []
       
-      
       // Used to demonstarte that the laoding spinner is present and functional
       sleep(1)
       
+      if let err = err {
+        print("there was an error fetchig data from the API: ", err)
+        
+        DispatchQueue.main.async {
+          
+          self.collectionView.isHidden = true
+          self.errorVerticalStackView.isHidden = false
+          
+          
+          self.activityIndicator.stopAnimating()
+          
+        }
+        
+        return
+      }
+      
+      
+      
       DispatchQueue.main.async {
+        self.collectionView.isHidden = false
         self.collectionView.reloadData()
         self.activityIndicator.stopAnimating()
       }

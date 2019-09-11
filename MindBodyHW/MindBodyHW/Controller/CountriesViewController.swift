@@ -158,7 +158,6 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
     let country = countries[indexPath.item]
     
     let countryDetailsViewController = CountryDetailsViewController(countryId: country.ID)
-    navigationController?.navigationBar.topItem?.title = country.Name
     navigationController?.pushViewController(countryDetailsViewController, animated: true)
   }
 

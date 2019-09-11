@@ -48,6 +48,7 @@ class Service{
       // check for errors when fetchind data
       if let err = err {
         print("Error fetching data: ", err)
+        completion(nil, err)
         return
       }
       
