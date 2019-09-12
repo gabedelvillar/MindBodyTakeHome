@@ -7,15 +7,18 @@
 //
 
 import UIKit
+import MapKit
 
 class CountryDetailsViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
   
   fileprivate let cellId = "CellId"
+  fileprivate let countryName: String
   fileprivate let countryFlagURL: String
   fileprivate let countryId: Int
   fileprivate var provinces = [Province]()
   
-  init(countryId: Int, countryFlagURL: String){
+  init(countryName: String, countryId: Int, countryFlagURL: String){
+    self.countryName = countryName
     self.countryId = countryId
     self.countryFlagURL = countryFlagURL
     super.init(nibName: nil, bundle: nil)
@@ -53,6 +56,12 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
     
   }()
   
+  let mapView: MKMapView =  {
+    let map = MKMapView()
+    
+    return map
+  }()
+  
   let noProvincesMsg = UILabel(text: "No Provinces for this Country to Display", font: .systemFont(ofSize: 18, weight: .bold), numberOfLines: 2)
   
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -73,6 +82,55 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
   }
   
   
+  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    let province = provinces[indexPath.item]
+    
+    
+    let searchRequest = MKLocalSearch.Request()
+    searchRequest.naturalLanguageQuery = "\(province.Name), \(countryName)"
+    
+    let activeSearch = MKLocalSearch(request: searchRequest)
+    
+    activeSearch.start { (response, err) in
+      if let err = err {
+        print("There was an error in searching for location: ", err)
+        return
+      }
+      
+      // remove previous annotations
+      let annotations = self.mapView.annotations
+      self.mapView.removeAnnotations(annotations)
+      
+      
+      // get the data
+      let latitude = response?.boundingRegion.center.latitude
+      let longitude = response?.boundingRegion.center.longitude
+      
+      // create annotation
+      let annotation  = MKPointAnnotation()
+      annotation.title = province.Name
+      
+      if let latitude = latitude, let longitude = longitude {
+        annotation.coordinate = CLLocationCoordinate2DMake(latitude, longitude)
+        self.mapView.addAnnotation(annotation)
+        
+        
+        // Zoom in on annotation
+        let coordinate: CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
+        
+        let span = MKCoordinateSpan(latitudeDelta: 2, longitudeDelta: 2)
+        
+        let region = MKCoordinateRegion(center: coordinate, span: span)
+        
+        self.mapView.setRegion(region, animated: true)
+      }
+      
+      
+    }
+
+  }
+  
+  
   lazy var collectionView: UICollectionView = {
     let layout = UICollectionViewFlowLayout()
     let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -83,6 +141,20 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .white
+    
+    view.addSubview(mapView)
+    mapView.translatesAutoresizingMaskIntoConstraints = false
+    
+    mapView.constrainHeight(constant: 180)
+    mapView.constrainWidth(constant: view.frame.width)
+    
+    NSLayoutConstraint.activate([
+      mapView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
+      mapView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0),
+      mapView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0)
+      ])
+    
+    setMapToCountry()
     
     setupCollectionView()
     
@@ -112,6 +184,51 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
 //      noProvincesMsg.centerInSuperview()
 //    }
 //  }
+  
+  fileprivate func setMapToCountry(){
+    let searchRequest = MKLocalSearch.Request()
+    searchRequest.naturalLanguageQuery = countryName
+    
+    let activeSearch = MKLocalSearch(request: searchRequest)
+    
+    activeSearch.start { (response, err) in
+      if let err = err {
+        print("There was an error in searching for location: ", err)
+        return
+      }
+      
+      // remove previous annotations
+      let annotations = self.mapView.annotations
+      self.mapView.removeAnnotations(annotations)
+      
+      
+      // get the data
+      let latitude = response?.boundingRegion.center.latitude
+      let longitude = response?.boundingRegion.center.longitude
+      
+      // create annotation
+      let annotation  = MKPointAnnotation()
+      annotation.title = self.countryName
+      
+      if let latitude = latitude, let longitude = longitude {
+        annotation.coordinate = CLLocationCoordinate2DMake(latitude, longitude)
+        self.mapView.addAnnotation(annotation)
+        
+        
+        // Zoom in on annotation
+        let coordinate: CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
+        
+        let span = MKCoordinateSpan(latitudeDelta: 10, longitudeDelta: 10)
+        
+        let region = MKCoordinateRegion(center: coordinate, span: span)
+        
+        self.mapView.setRegion(region, animated: true)
+      }
+      
+      
+    }
+  }
+  
   
   fileprivate func fetchData() {
     
@@ -167,7 +284,17 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
   fileprivate func setupCollectionView() {
     collectionView.register(ProvinceCell.self, forCellWithReuseIdentifier: cellId)
     collectionView.backgroundColor = .white
+    
     view.addSubview(collectionView)
-    collectionView.fillSuperview()
+    
+    collectionView.translatesAutoresizingMaskIntoConstraints = false
+    NSLayoutConstraint.activate([
+      collectionView.topAnchor.constraint(equalTo: mapView.bottomAnchor, constant: 8),
+      collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
+      collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
+      collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
+      ])
+    
+    //collectionView.fillSuperview()
   }
 }

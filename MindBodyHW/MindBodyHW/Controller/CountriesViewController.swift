@@ -161,7 +161,7 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
     
     let countryFlagURL = "https://www.countryflags.io/\(country.Code)/flat/64.png"
     
-    let countryDetailsViewController = CountryDetailsViewController(countryId: country.ID, countryFlagURL: countryFlagURL)
+    let countryDetailsViewController = CountryDetailsViewController(countryName: country.Name, countryId: country.ID, countryFlagURL: countryFlagURL)
     
     countryDetailsViewController.navigationItem.title = country.Name
     navigationController?.pushViewController(countryDetailsViewController, animated: true)
