@@ -13,21 +13,32 @@ class ProvinceCell: UICollectionViewCell {
   
   
   let nameLbl = UILabel(text: "California", font: .systemFont(ofSize: 18))
+  let flagImageView = UIImageView(cornerRadius: 16)
+  
   
   override init(frame: CGRect) {
     super.init(frame: frame)
     
-    backgroundColor = .red
+    backgroundColor = .white
     
     setupViews()
   }
   
   fileprivate func setupViews(){
-    addSubview(nameLbl)
-    nameLbl.centerInSuperview()
+    flagImageView.constrainWidth(constant: 50)
+    flagImageView.constrainHeight(constant: 50)
+    let stackView = UIStackView(arrangedSubViews: [
+      flagImageView,
+      nameLbl
+      ], customSpacing: 12)
+    
+    stackView.alignment = .center
+    addSubview(stackView)
+    stackView.fillSuperview(padding: .init(top: 0, left: 16, bottom: 0, right: 16))
   }
   
   required init?(coder aDecoder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 }
+

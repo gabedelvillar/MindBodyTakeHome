@@ -11,11 +11,13 @@ import UIKit
 class CountryDetailsViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
   
   fileprivate let cellId = "CellId"
+  fileprivate let countryFlagURL: String
   fileprivate let countryId: Int
   fileprivate var provinces = [Province]()
   
-  init(countryId: Int){
+  init(countryId: Int, countryFlagURL: String){
     self.countryId = countryId
+    self.countryFlagURL = countryFlagURL
     super.init(nibName: nil, bundle: nil)
   }
   
@@ -62,7 +64,7 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! ProvinceCell
     let province = provinces[indexPath.item]
     cell.nameLbl.text = province.Name
-    cell.backgroundColor = .blue
+    cell.flagImageView.sd_setImage(with:URL(string: countryFlagURL) )
     return cell
   }
   

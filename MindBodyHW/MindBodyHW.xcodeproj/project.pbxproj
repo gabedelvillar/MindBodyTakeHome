@@ -20,6 +20,7 @@
 		0A9015ED23283FC200217CCA /* Province.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9015EC23283FC200217CCA /* Province.swift */; };
 		0A9015EF23296B1E00217CCA /* ProvinceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9015EE23296B1E00217CCA /* ProvinceCell.swift */; };
 		0A9015F123297EB900217CCA /* VerticalStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9015F023297EB900217CCA /* VerticalStackView.swift */; };
+		41480506B2C2F7B7B6FE32CF /* Pods_MindBodyHW.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C27E0CD2F0C2106FC667A6CB /* Pods_MindBodyHW.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +39,9 @@
 		0A9015EC23283FC200217CCA /* Province.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Province.swift; sourceTree = "<group>"; };
 		0A9015EE23296B1E00217CCA /* ProvinceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvinceCell.swift; sourceTree = "<group>"; };
 		0A9015F023297EB900217CCA /* VerticalStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalStackView.swift; sourceTree = "<group>"; };
+		77BCBD5899C04DDAD5F96EF8 /* Pods-MindBodyHW.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MindBodyHW.release.xcconfig"; path = "Pods/Target Support Files/Pods-MindBodyHW/Pods-MindBodyHW.release.xcconfig"; sourceTree = "<group>"; };
+		C27E0CD2F0C2106FC667A6CB /* Pods_MindBodyHW.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MindBodyHW.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D306017FAA6385C1D15477C2 /* Pods-MindBodyHW.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MindBodyHW.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MindBodyHW/Pods-MindBodyHW.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,6 +49,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41480506B2C2F7B7B6FE32CF /* Pods_MindBodyHW.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -56,6 +61,8 @@
 			children = (
 				0A6CBD3D2326DB1300E8DC51 /* MindBodyHW */,
 				0A6CBD3C2326DB1300E8DC51 /* Products */,
+				495125F947A9D056906ABCAC /* Pods */,
+				180A8A6903B078C9D2D3A8D3 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -128,6 +135,23 @@
 			path = Service;
 			sourceTree = "<group>";
 		};
+		180A8A6903B078C9D2D3A8D3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C27E0CD2F0C2106FC667A6CB /* Pods_MindBodyHW.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		495125F947A9D056906ABCAC /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				D306017FAA6385C1D15477C2 /* Pods-MindBodyHW.debug.xcconfig */,
+				77BCBD5899C04DDAD5F96EF8 /* Pods-MindBodyHW.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -135,9 +159,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0A6CBD4D2326DB1700E8DC51 /* Build configuration list for PBXNativeTarget "MindBodyHW" */;
 			buildPhases = (
+				D9B86FF4971C3C771DC38894 /* [CP] Check Pods Manifest.lock */,
 				0A6CBD372326DB1300E8DC51 /* Sources */,
 				0A6CBD382326DB1300E8DC51 /* Frameworks */,
 				0A6CBD392326DB1300E8DC51 /* Resources */,
+				4BCC82896DC445A58D047115 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -193,6 +219,53 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4BCC82896DC445A58D047115 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-MindBodyHW/Pods-MindBodyHW-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MindBodyHW/Pods-MindBodyHW-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D9B86FF4971C3C771DC38894 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MindBodyHW-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0A6CBD372326DB1300E8DC51 /* Sources */ = {
@@ -352,6 +425,7 @@
 		};
 		0A6CBD4E2326DB1700E8DC51 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D306017FAA6385C1D15477C2 /* Pods-MindBodyHW.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -370,6 +444,7 @@
 		};
 		0A6CBD4F2326DB1700E8DC51 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 77BCBD5899C04DDAD5F96EF8 /* Pods-MindBodyHW.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;

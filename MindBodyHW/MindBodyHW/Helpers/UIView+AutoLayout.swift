@@ -46,7 +46,25 @@ extension UIView{
       heightAnchor.constraint(equalToConstant: size.height).isActive = true
     }
   }
+  
+  func constrainWidth(constant: CGFloat) {
+    translatesAutoresizingMaskIntoConstraints = false
+    widthAnchor.constraint(equalToConstant: constant).isActive = true
+    
+  }
+  
+  func constrainHeight(constant: CGFloat) {
+    translatesAutoresizingMaskIntoConstraints = false
+    heightAnchor.constraint(equalToConstant: constant).isActive = true
+  }
 
+}
+
+extension UIStackView {
+  convenience init(arrangedSubViews: [UIView], customSpacing: CGFloat = 0){
+    self.init(arrangedSubviews: arrangedSubViews)
+    self.spacing = customSpacing
+  }
 }
 
 extension UILabel {
@@ -55,5 +73,15 @@ extension UILabel {
     self.text = text
     self.font = font
     self.numberOfLines = numberOfLines
+  }
+}
+
+extension UIImageView {
+  convenience init(cornerRadius: CGFloat) {
+    self.init(image: nil)
+    self.layer.cornerRadius = cornerRadius
+    self.clipsToBounds = true
+    self.contentMode = .scaleAspectFill
+    
   }
 }

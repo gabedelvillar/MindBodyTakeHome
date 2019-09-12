@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class CountriesViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
   fileprivate let cellId = "cellID"
@@ -140,6 +141,7 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! CountryCell
     let country = countries[indexPath.item]
+     cell.flagImageView.sd_setImage(with:URL(string: "https://www.countryflags.io/\(country.Code)/flat/64.png") )
     cell.nameLbl.text = country.Name
     return cell
   }
@@ -157,7 +159,11 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
     let country = countries[indexPath.item]
     
-    let countryDetailsViewController = CountryDetailsViewController(countryId: country.ID)
+    let countryFlagURL = "https://www.countryflags.io/\(country.Code)/flat/64.png"
+    
+    let countryDetailsViewController = CountryDetailsViewController(countryId: country.ID, countryFlagURL: countryFlagURL)
+    
+    countryDetailsViewController.navigationItem.title = country.Name
     navigationController?.pushViewController(countryDetailsViewController, animated: true)
   }
 
