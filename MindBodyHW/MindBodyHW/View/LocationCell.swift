@@ -8,7 +8,7 @@
 
 import UIKit
 
-class CountryCell: UICollectionViewCell {
+class LocationCell: UICollectionViewCell {
   
   let nameLbl = UILabel(text: "USA", font: .systemFont(ofSize: 18))
   
@@ -16,10 +16,14 @@ class CountryCell: UICollectionViewCell {
   
   override init(frame: CGRect) {
     super.init(frame: frame)
-    
+
     backgroundColor = .white
     
     setupViews()
+  }
+  
+  required init?(coder aDecoder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
   }
   
   fileprivate func setupViews(){
@@ -35,8 +39,5 @@ class CountryCell: UICollectionViewCell {
     stackView.fillSuperview(padding: .init(top: 0, left: 16, bottom: 0, right: 16))
   }
   
-  required init?(coder aDecoder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
 }
 

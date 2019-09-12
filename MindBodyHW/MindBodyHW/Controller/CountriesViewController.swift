@@ -9,7 +9,7 @@
 import UIKit
 import SDWebImage
 
-class CountriesViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class CountriesViewController: UIViewController{
   fileprivate let cellId = "cellID"
   fileprivate var countries = [Country]()
   
@@ -58,103 +58,96 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
   override func viewDidLoad() {
     super.viewDidLoad()
    
+    setupViews()
+    fetchData()
+  }
+  
+  fileprivate func setupViews(){
     view.backgroundColor = .white
     
+    setupNavigationController()
+    setupCollectionView()
+    setupSupplementaryViews()
+  }
+  
+  fileprivate func setupNavigationController() {
     if let navigationController = navigationController {
       navigationController.navigationBar.prefersLargeTitles = true
       navigationController.navigationBar.topItem?.title = "Countries"
     }
-    setupCollectionView()
-    
+  }
+  
+  fileprivate func setupSupplementaryViews(){
     view.addSubview(activityIndicator)
     activityIndicator.fillSuperview()
-    
-   
-    
-   
     view.addSubview(errorVerticalStackView)
     errorVerticalStackView.centerInSuperview()
-    
-    
-    
-    fetchData()
   }
   
   @objc fileprivate func startRefreshing() {
+    // clear data from collectoinView, and begin refresh
+    countries.removeAll()
+    collectionView.reloadData()
     refreshController.endRefreshing()
+    countries.removeAll()
     fetchData()
   }
   
-@objc fileprivate func retryBtnPressed() {
+  @objc fileprivate func retryBtnPressed() {
     errorVerticalStackView.isHidden = true
     fetchData()
+  }
+  
+  
+  fileprivate func setupCollectionView() {
+    view.addSubview(collectionView)
+    collectionView.fillSuperview()
+    collectionView.backgroundColor = .white
+    collectionView.register(LocationCell.self, forCellWithReuseIdentifier: cellId)
+    collectionView.refreshControl = refreshController
   }
   
   
   fileprivate func fetchData() {
     
     activityIndicator.startAnimating()
-    Service.shared.fetchCountries { (countries, err) in
+    
+    NetworkService.shared.fetchCountries { [unowned self] (countries, err) in
       self.countries = countries ?? []
       
       // Demonstarte that the laoding spinner is functional
       sleep(1)
       
+       // Check for Errors, and let the user rety the API reqeust
       if let err = err {
         print("there was an error fetchig data from the API: ", err)
         
         DispatchQueue.main.async {
-          
-          self.collectionView.isHidden = true
-          self.errorVerticalStackView.isHidden = false
-          
-          
-          self.activityIndicator.stopAnimating()
-        
+          self.updateUIWithNetworkError()
         }
-        
         return
       }
-      
-      
-      
+      // Else: Success, display the results of the data fetch to the user
       DispatchQueue.main.async {
-        self.collectionView.isHidden = false
-        self.collectionView.reloadData()
-        self.activityIndicator.stopAnimating()
-        
+        self.updateUIWithNetworkResults()
       }
     }
+  }
+  
+  fileprivate func updateUIWithNetworkError(){
+    collectionView.isHidden = true
+    errorVerticalStackView.isHidden = false
+    activityIndicator.stopAnimating()
+  }
+  
+  fileprivate func updateUIWithNetworkResults() {
+    collectionView.isHidden = false
+    collectionView.reloadData()
+    activityIndicator.stopAnimating()
+  }
+}
 
-  }
-  
-  fileprivate func setupCollectionView() {
-    view.addSubview(collectionView)
-    collectionView.fillSuperview()
-    collectionView.backgroundColor = .white
-    collectionView.register(CountryCell.self, forCellWithReuseIdentifier: cellId)
-    collectionView.refreshControl = refreshController
-  }
-  
-  
-  
-  func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! CountryCell
-    let country = countries[indexPath.item]
-     cell.flagImageView.sd_setImage(with:URL(string: "https://www.countryflags.io/\(country.Code)/flat/64.png") )
-    cell.nameLbl.text = country.Name
-    return cell
-  }
-  
-  
-  func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    return countries.count
-  }
-  
-  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-    return .init(width: view.frame.width, height: 100)
-  }
-  
+extension CountriesViewController: UICollectionViewDelegate{
   
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
     let country = countries[indexPath.item]
@@ -166,9 +159,32 @@ class CountriesViewController: UIViewController, UICollectionViewDelegate, UICol
     countryDetailsViewController.navigationItem.title = country.Name
     navigationController?.pushViewController(countryDetailsViewController, animated: true)
   }
-
-
+  
 }
+
+extension CountriesViewController: UICollectionViewDataSource{
+  
+  func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    return countries.count
+  }
+  
+  func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! LocationCell
+    let country = countries[indexPath.item]
+    cell.flagImageView.sd_setImage(with:URL(string: "https://www.countryflags.io/\(country.Code)/flat/64.png") )
+    cell.nameLbl.text = country.Name
+    return cell
+  }
+  
+}
+
+extension CountriesViewController: UICollectionViewDelegateFlowLayout {
+  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    return .init(width: view.frame.width, height: 100)
+  }
+}
+
+
 
 
 

@@ -8,8 +8,8 @@
 
 import Foundation
 
-class Service{
-  static let shared = Service() //Singleton
+class NetworkService{
+  static let shared = NetworkService() //Singleton
   
   func fetchCountries(completion: @escaping ([Country]?, Error?) -> ()){
     let jsonUrlString = "https://connect.mindbodyonline.com/rest/worldregions/country"

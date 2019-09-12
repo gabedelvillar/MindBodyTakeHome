@@ -9,24 +9,15 @@
 import UIKit
 import MapKit
 
-class CountryDetailsViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+class CountryDetailsViewController: UIViewController{
   
   fileprivate let cellId = "CellId"
   fileprivate let countryName: String
   fileprivate let countryFlagURL: String
+  
+  
   fileprivate let countryId: Int
   fileprivate var provinces = [Province]()
-  
-  init(countryName: String, countryId: Int, countryFlagURL: String){
-    self.countryName = countryName
-    self.countryId = countryId
-    self.countryFlagURL = countryFlagURL
-    super.init(nibName: nil, bundle: nil)
-  }
-  
-  required init?(coder aDecoder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
   
   var activityIndicator: UIActivityIndicatorView = {
     let aiv = UIActivityIndicatorView(style: .whiteLarge)
@@ -37,6 +28,9 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
   }()
   
   let dataFetchErrorMsg = UILabel(text: "Oops. Could not fetch data from API", font: .systemFont(ofSize: 18, weight: .bold), numberOfLines: 2)
+  
+  
+  let noProvincesMsg = UILabel(text: "No Provinces for this Country to Display", font: .systemFont(ofSize: 18, weight: .bold), numberOfLines: 2)
   
   let retryBtn: UIButton = {
     let btn = UIButton(type: .system)
@@ -58,77 +52,9 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
   
   let mapView: MKMapView =  {
     let map = MKMapView()
-    
     return map
   }()
   
-  let noProvincesMsg = UILabel(text: "No Provinces for this Country to Display", font: .systemFont(ofSize: 18, weight: .bold), numberOfLines: 2)
-  
-  func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    
-    return provinces.count
-  }
-  
-  func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! ProvinceCell
-    let province = provinces[indexPath.item]
-    cell.nameLbl.text = province.Name
-    cell.flagImageView.sd_setImage(with:URL(string: countryFlagURL) )
-    return cell
-  }
-  
-  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-    return .init(width: view.frame.width, height: 100)
-  }
-  
-  
-  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-    let province = provinces[indexPath.item]
-    
-    
-    let searchRequest = MKLocalSearch.Request()
-    searchRequest.naturalLanguageQuery = "\(province.Name), \(countryName)"
-    
-    let activeSearch = MKLocalSearch(request: searchRequest)
-    
-    activeSearch.start { (response, err) in
-      if let err = err {
-        print("There was an error in searching for location: ", err)
-        return
-      }
-      
-      // remove previous annotations
-      let annotations = self.mapView.annotations
-      self.mapView.removeAnnotations(annotations)
-      
-      
-      // get the data
-      let latitude = response?.boundingRegion.center.latitude
-      let longitude = response?.boundingRegion.center.longitude
-      
-      // create annotation
-      let annotation  = MKPointAnnotation()
-      annotation.title = province.Name
-      
-      if let latitude = latitude, let longitude = longitude {
-        annotation.coordinate = CLLocationCoordinate2DMake(latitude, longitude)
-        self.mapView.addAnnotation(annotation)
-        
-        
-        // Zoom in on annotation
-        let coordinate: CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
-        
-        let span = MKCoordinateSpan(latitudeDelta: 2, longitudeDelta: 2)
-        
-        let region = MKCoordinateRegion(center: coordinate, span: span)
-        
-        self.mapView.setRegion(region, animated: true)
-      }
-      
-      
-    }
-
-  }
   
   
   lazy var collectionView: UICollectionView = {
@@ -138,151 +64,50 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
     cv.dataSource = self
     return cv
   }()
+  
+  
+  init(countryName: String, countryId: Int, countryFlagURL: String){
+    self.countryName = countryName
+    self.countryId = countryId
+    self.countryFlagURL = countryFlagURL
+    super.init(nibName: nil, bundle: nil)
+  }
+  
+  
+  // Remove clustered annotaions from the map view to prevent memory leaks.
+  deinit {
+    mapView.removeAnnotations(mapView.annotations)
+  }
+  
+  required init?(coder aDecoder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+  
   override func viewDidLoad() {
     super.viewDidLoad()
+    
+    setupViews()
+    fetchData()
+  }
+  
+  fileprivate func setupViews() {
     view.backgroundColor = .white
     
-    view.addSubview(mapView)
-    mapView.translatesAutoresizingMaskIntoConstraints = false
-    
-    mapView.constrainHeight(constant: 180)
-    mapView.constrainWidth(constant: view.frame.width)
-    
-    NSLayoutConstraint.activate([
-      mapView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
-      mapView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0),
-      mapView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0)
-      ])
-    
-    setMapToCountry()
-    
+    setupMapView()
     setupCollectionView()
-    
-    view.addSubview(activityIndicator)
-    activityIndicator.fillSuperview()
-    
-    view.addSubview(errorVerticalStackView)
-    errorVerticalStackView.centerInSuperview()
-    
-    view.addSubview(noProvincesMsg)
-    noProvincesMsg.centerInSuperview()
-    noProvincesMsg.isHidden = true
-    
-    fetchData()
-    
+    setupSupplementaryViews()
   }
   
-  @objc fileprivate func retryBtnPressed() {
-    errorVerticalStackView.isHidden = true
-    fetchData()
-  }
-  
-//  override func viewDidAppear(_ animated: Bool) {
-//    if provinces.count == 0 {
-//      activityIndicator.stopAnimating()
-//      view.addSubview(noProvincesMsg)
-//      noProvincesMsg.centerInSuperview()
-//    }
-//  }
-  
-  fileprivate func setMapToCountry(){
-    let searchRequest = MKLocalSearch.Request()
-    searchRequest.naturalLanguageQuery = countryName
+  fileprivate func setupMapView() {
+    view.addSubview(mapView)
     
-    let activeSearch = MKLocalSearch(request: searchRequest)
+    mapView.anchor(top: view.safeAreaLayoutGuide.topAnchor, leading: view.safeAreaLayoutGuide.leadingAnchor, bottom: nil, trailing: view.safeAreaLayoutGuide.trailingAnchor, padding: .zero, size: .init(width: view.frame.width, height: 180))
     
-    activeSearch.start { (response, err) in
-      if let err = err {
-        print("There was an error in searching for location: ", err)
-        return
-      }
-      
-      // remove previous annotations
-      let annotations = self.mapView.annotations
-      self.mapView.removeAnnotations(annotations)
-      
-      
-      // get the data
-      let latitude = response?.boundingRegion.center.latitude
-      let longitude = response?.boundingRegion.center.longitude
-      
-      // create annotation
-      let annotation  = MKPointAnnotation()
-      annotation.title = self.countryName
-      
-      if let latitude = latitude, let longitude = longitude {
-        annotation.coordinate = CLLocationCoordinate2DMake(latitude, longitude)
-        self.mapView.addAnnotation(annotation)
-        
-        
-        // Zoom in on annotation
-        let coordinate: CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
-        
-        let span = MKCoordinateSpan(latitudeDelta: 10, longitudeDelta: 10)
-        
-        let region = MKCoordinateRegion(center: coordinate, span: span)
-        
-        self.mapView.setRegion(region, animated: true)
-      }
-      
-      
-    }
-  }
-  
-  
-  fileprivate func fetchData() {
-    
-    activityIndicator.startAnimating()
-    
-    Service.shared.fetchCountryDetails(countryId: countryId) { (provinces, err) in
-      self.provinces = provinces ?? []
-      
-      // Used to demonstarte that the laoding spinner is present and functional
-      sleep(1)
-      
-      if let err = err {
-        print("there was an error fetchig data from the API: ", err)
-        
-        DispatchQueue.main.async {
-          
-          self.collectionView.isHidden = true
-          self.errorVerticalStackView.isHidden = false
-          
-          
-          self.activityIndicator.stopAnimating()
-          
-        }
-        
-        return
-      }
-      
-      
-      
-      DispatchQueue.main.async {
-        
-         self.activityIndicator.stopAnimating()
-        
-        if self.provinces.count == 0 {
-          
-          
-          self.noProvincesMsg.isHidden = false
-        } else{
-        
-          self.noProvincesMsg.isHidden = true
-          self.collectionView.isHidden = false
-          self.collectionView.reloadData()
-          
-        }
-        
-       
-        
-      }
-    }
-    
+    MapService.shared.setMapToLocation(mapView: mapView, querySearch: countryName, annotationTitle: countryName, zoomLatitudeMult: 10, zoomLongitudeMult: 10)
   }
   
   fileprivate func setupCollectionView() {
-    collectionView.register(ProvinceCell.self, forCellWithReuseIdentifier: cellId)
+    collectionView.register(LocationCell.self, forCellWithReuseIdentifier: cellId)
     collectionView.backgroundColor = .white
     
     view.addSubview(collectionView)
@@ -294,7 +119,98 @@ class CountryDetailsViewController: UIViewController, UICollectionViewDataSource
       collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
       collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
       ])
+  }
+
+  fileprivate func setupSupplementaryViews(){
+    view.addSubview(activityIndicator)
+    activityIndicator.fillSuperview()
     
-    //collectionView.fillSuperview()
+    view.addSubview(errorVerticalStackView)
+    errorVerticalStackView.centerInSuperview()
+    
+    view.addSubview(noProvincesMsg)
+    noProvincesMsg.centerInSuperview()
+    noProvincesMsg.isHidden = true
+  }
+  
+  @objc fileprivate func retryBtnPressed() {
+    MapService.shared.setMapToLocation(mapView: mapView, querySearch: countryName, annotationTitle: countryName, zoomLatitudeMult: 10, zoomLongitudeMult: 10)
+    errorVerticalStackView.isHidden = true
+    fetchData()
+  }
+  
+  fileprivate func fetchData() {
+    
+    activityIndicator.startAnimating()
+    
+    NetworkService.shared.fetchCountryDetails(countryId: countryId) { [unowned self] (provinces, err) in
+      self.provinces = provinces ?? []
+      
+      // Used to demonstarte that the laoding spinner is present and functional
+      sleep(1)
+      
+      // Check for Errors, and let the user rety the API reqeust
+      if let err = err {
+        print("there was an error fetchig data from the API: ", err)
+        
+        DispatchQueue.main.async {
+         self.updateUIWithNetworkError()
+        }
+        return
+      }
+      // Else: Success, display the results of the data fetch to the user
+      DispatchQueue.main.async {
+        self.updateUIWithNetworkResults()
+      }
+    }
+  }
+  
+  fileprivate func updateUIWithNetworkResults(){
+    activityIndicator.stopAnimating()
+    if provinces.count == 0 {
+      // No Provinces to display
+      noProvincesMsg.isHidden = false
+    } else{
+      noProvincesMsg.isHidden = true
+      collectionView.isHidden = false
+      collectionView.reloadData()
+    }
+  }
+  
+  fileprivate func updateUIWithNetworkError(){
+    collectionView.isHidden = true
+    errorVerticalStackView.isHidden = false
+    activityIndicator.stopAnimating()
+  }
+  
+}
+
+extension CountryDetailsViewController: UICollectionViewDelegate{
+  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    let province = provinces[indexPath.item]
+    
+    let querySearch = "\(province.Name), \(countryName)"
+    MapService.shared.setMapToLocation(mapView: mapView, querySearch: querySearch, annotationTitle: province.Name, zoomLatitudeMult: 2, zoomLongitudeMult: 2)
   }
 }
+
+extension CountryDetailsViewController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    return provinces.count
+  }
+  
+  func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! LocationCell
+    let province = provinces[indexPath.item]
+    cell.nameLbl.text = province.Name
+    cell.flagImageView.sd_setImage(with:URL(string: countryFlagURL) )
+    return cell
+  }
+}
+
+extension CountryDetailsViewController: UICollectionViewDelegateFlowLayout{
+  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    return .init(width: view.frame.width, height: 100)
+  }
+}
+
